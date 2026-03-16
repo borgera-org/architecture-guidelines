@@ -1,0 +1,24 @@
+name: reusable-security
+
+on:
+  workflow_call:
+    inputs:
+      run-dependency-review:
+        description: "Run GitHub dependency review"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  dependency-review:
+    if: ${{ inputs.run-dependency-review }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
