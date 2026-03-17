@@ -1,5 +1,22 @@
-# Governanca
+# Governanca de Arquitetura
 
-- Dono inicial: Igor
-- Modelo de aprovacao: PR obrigatorio com 1 aprovacao
-- Mudancas de CI/Seguranca exigem smoke test no BORGERA
+## Dono dos dominios
+- Responsavel principal: Igor.
+
+## Quem decide
+- Decisoes de arquitetura do dominio: dono do dominio.
+- Decisoes centrais (workflow, seguranca, compliance): dono do dominio com validacao de impacto no piloto.
+
+## Quem revisa
+- Alteracoes em .github/ e workflows: code owner obrigatorio.
+- Alteracoes com risco alto: requerem justificativa de risco, smoke test e rollback explicito.
+
+## Como escalar
+- Conflito tecnico sem consenso: abrir issue arquitetural com opcoes e trade-offs.
+- Mudanca breaking: ADR obrigatoria antes do merge.
+
+## Rito minimo por mudanca central
+1. Abrir issue com objetivo, risco e criterio de pronto.
+2. Abrir PR com checklist obrigatorio.
+3. Executar smoke test no piloto.
+4. Aprovar e comunicar consumidores.
