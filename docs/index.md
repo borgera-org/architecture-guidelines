@@ -8,4 +8,6 @@ Fonte unica de verdade para principios, governanca e padroes tecnicos.
 - [Niveis de Diretriz](policy-levels.md)
 - [CI/CD](cicd.md)
 - [Seguranca](seguranca.md)
+- [Rollout Controlado](rollout.md)
+- [Rollback Same-Day](rollback.md)
 - [Template ADR](adrs/adr-template.md)
