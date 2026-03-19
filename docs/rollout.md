@@ -13,9 +13,12 @@ Esta politica define como propagar mudancas centrais com baixo risco para reposi
 3. Repositorio com maior criticidade operacional.
 
 ## Checklist de adocao por repositorio
-- Workflow central referenciado por tag ou main conforme criticidade.
+- Novo repositorio consumidor criado a partir do `golden path` suportado.
+- Workflow central referenciado por tag estavel de major (`v1`) ou tag imutavel (`v1.0.0`) conforme criticidade.
+- Uso de `main` restrito ao piloto ou validacao antecipada com rollback explicito.
 - CODEOWNERS e PR template habilitados no repositorio consumidor.
 - Branch protection com checks obrigatorios ativa.
+- Baseline minima de branch protection alinhada com `docs/branch-protection.md`.
 - Smoke test executado apos adocao.
 - Rollback documentado no PR de adocao.
 
@@ -38,4 +41,6 @@ Esta politica define como propagar mudancas centrais com baixo risco para reposi
 ## Evidencias esperadas
 - Link do PR no repositorio central.
 - Link do PR de adocao no consumidor.
+- Versao ou tag do workflow central adotado.
+- Lista de checks obrigatorios configurados no consumidor.
 - Links de execucao dos workflows.

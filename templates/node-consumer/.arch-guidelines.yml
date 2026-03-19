@@ -1,0 +1,18 @@
+repository:
+  name: REPLACE_REPOSITORY_NAME
+  owner: REPLACE_TEAM_OR_OWNER
+  criticality: medium
+  stack: node
+  pilot_candidate: false
+
+baseline:
+  workflow_channel: v1
+  ci_check_name: ci
+  security_check_name: security
+  codeowners_enabled: true
+  pr_template_enabled: true
+  issue_templates_enabled: false
+
+contacts:
+  platform_owner: REPLACE_PLATFORM_OWNER
+  repository_owner: REPLACE_REPOSITORY_OWNER

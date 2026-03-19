@@ -1,0 +1,17 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    uses: borgera-org/architecture-guidelines/.github/workflows/ci-reusable.yml@v1
+    with:
+      setup-node: "20"
+      install-command: npm ci
+      lint-command: npm run lint
+      test-command: npm test -- --ci
+      build-command: npm run build

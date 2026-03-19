@@ -1,0 +1,8 @@
+name: security
+
+on:
+  pull_request:
+
+jobs:
+  security:
+    uses: borgera-org/architecture-guidelines/.github/workflows/security-reusable.yml@v1
