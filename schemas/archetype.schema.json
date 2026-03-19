@@ -1,0 +1,455 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:architecture-guidelines:schemas:archetype",
+  "title": "Archetype Definition",
+  "description": "Schema oficial para validar definicoes de archetypes consumidas pelo CLI interno, por agentes de IA e por processos de governanca da plataforma.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "description",
+    "version",
+    "status",
+    "metadata",
+    "intent",
+    "inputs",
+    "templateSet",
+    "postProcessing",
+    "constraints",
+    "outputs",
+    "lifecycle",
+    "consumerGuidance"
+  ],
+  "properties": {
+    "id": {
+      "description": "Identificador estavel do archetype.",
+      "$ref": "#/$defs/kebabIdentifier"
+    },
+    "name": {
+      "description": "Nome legivel para humanos.",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "description": {
+      "description": "Descricao curta do caso de uso do archetype.",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "version": {
+      "description": "Versao do contrato do archetype em formato semver.",
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "status": {
+      "description": "Estado atual do archetype.",
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "deprecated"
+      ]
+    },
+    "metadata": {
+      "description": "Metadados basicos usados para classificacao e descoberta.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "category",
+        "platform"
+      ],
+      "properties": {
+        "owner": {
+          "description": "Time ou repositorio responsavel pelo archetype.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "category": {
+          "description": "Categoria funcional do archetype.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "platform": {
+          "description": "Plataforma principal representada pelo archetype.",
+          "$ref": "#/$defs/kebabIdentifier"
+        }
+      }
+    },
+    "intent": {
+      "description": "Intencao arquitetural do archetype.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "problem",
+        "useCases",
+        "nonGoals"
+      ],
+      "properties": {
+        "problem": {
+          "description": "Problema que o archetype resolve.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "useCases": {
+          "description": "Situacoes em que o archetype deve ser usado.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "nonGoals": {
+          "description": "Situacoes e responsabilidades fora do escopo do archetype.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "inputs": {
+      "description": "Entradas que o CLI deve solicitar ou receber para materializar o archetype.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/inputDefinition"
+      }
+    },
+    "templateSet": {
+      "description": "Conjunto de templates acionados por este archetype.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "templates"
+      ],
+      "properties": {
+        "id": {
+          "description": "Identificador estavel do conjunto de templates.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "description": {
+          "description": "Descricao do papel do conjunto de templates.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "templates": {
+          "description": "Lista de templates a aplicar.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/templateSetEntry"
+          }
+        }
+      }
+    },
+    "postProcessing": {
+      "description": "Passos declarativos de pos-processamento executados apos a materializacao dos templates.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/postProcessingStep"
+      }
+    },
+    "constraints": {
+      "description": "Restricoes publicadas que o CLI e os consumidores devem respeitar.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/constraintDefinition"
+      }
+    },
+    "outputs": {
+      "description": "Resultado estrutural esperado apos aplicar o archetype.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repositoryType",
+        "platform",
+        "expectedDirectories",
+        "expectedArtifacts"
+      ],
+      "properties": {
+        "repositoryType": {
+          "description": "Tipo de repositorio gerado.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "platform": {
+          "description": "Plataforma principal esperada no repositorio gerado.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "expectedDirectories": {
+          "description": "Diretorios que devem existir no resultado inicial.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/pathToken"
+          }
+        },
+        "expectedArtifacts": {
+          "description": "Artefatos esperados no resultado inicial.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/pathToken"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "description": "Informacoes sobre ciclo de vida e estado do archetype.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stateModel",
+        "currentStateReason"
+      ],
+      "properties": {
+        "stateModel": {
+          "description": "Estados validos para o archetype.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "deprecated"
+            ]
+          }
+        },
+        "currentStateReason": {
+          "description": "Justificativa textual para o estado atual.",
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "consumerGuidance": {
+      "description": "Orientacoes especificas para cada consumidor principal.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "forHumans",
+        "forCli",
+        "forAi"
+      ],
+      "properties": {
+        "forHumans": {
+          "description": "Orientacao de uso humano.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "forCli": {
+          "description": "Orientacao de consumo pelo CLI.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "forAi": {
+          "description": "Orientacao de consumo por agentes de IA.",
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kebabIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "camelIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z0-9]*$"
+    },
+    "pathToken": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._/-]+$"
+    },
+    "templateablePathToken": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?:[A-Za-z0-9._/-]|\\{\\{\\s*[A-Za-z][A-Za-z0-9]*\\s*\\}\\})+$"
+    },
+    "conditionExpression": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constraintDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "description": "Identificador estavel da restricao.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "description": {
+          "description": "Descricao da restricao.",
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "templateSetEntry": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "Identificador estavel do template.",
+              "$ref": "#/$defs/kebabIdentifier"
+            },
+            "when": {
+              "description": "Condicao declarativa para aplicacao do template.",
+              "$ref": "#/$defs/conditionExpression"
+            }
+          }
+        }
+      ]
+    },
+    "postProcessingStep": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/solutionAddProjectStep"
+        }
+      ]
+    },
+    "solutionAddProjectStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "solution",
+        "project"
+      ],
+      "properties": {
+        "type": {
+          "const": "solution-add-project"
+        },
+        "when": {
+          "description": "Condicao declarativa para executar o passo somente quando aplicavel.",
+          "$ref": "#/$defs/conditionExpression"
+        },
+        "solution": {
+          "description": "Caminho da solution a ser alterada.",
+          "$ref": "#/$defs/templateablePathToken"
+        },
+        "project": {
+          "description": "Caminho do projeto a ser conectado na solution.",
+          "$ref": "#/$defs/templateablePathToken"
+        }
+      }
+    },
+    "inputDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "required",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "description": "Identificador estavel da entrada, usado pelo CLI.",
+          "$ref": "#/$defs/camelIdentifier"
+        },
+        "type": {
+          "description": "Tipo primitivo da entrada.",
+          "type": "string",
+          "enum": [
+            "string",
+            "boolean",
+            "number",
+            "integer"
+          ]
+        },
+        "required": {
+          "description": "Indica se a entrada e obrigatoria.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Descricao da entrada.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "default": {
+          "description": "Valor padrao da entrada, quando existir."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "string"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "default": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "boolean"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "default": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "number"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "default": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "integer"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "default": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

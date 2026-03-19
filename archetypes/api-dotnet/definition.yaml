@@ -1,0 +1,128 @@
+id: api-dotnet
+name: API .NET
+description: >
+  Archetype oficial para criacao de APIs HTTP em .NET com estrutura inicial
+  padronizada para consumo por times internos, agentes de IA e pelo CLI de
+  scaffolding.
+version: 0.1.0
+status: draft
+
+metadata:
+  owner: architecture-guidelines
+  category: backend-api
+  platform: dotnet
+
+intent:
+  problem: >
+    Padronizar a criacao de repositorios de API em .NET para reduzir variacao
+    estrutural, acelerar onboarding e tornar o scaffolding previsivel.
+  useCases:
+    - Novas APIs internas
+    - Novos servicos HTTP expostos para consumo organizacional
+    - Projetos que precisam nascer aderentes aos padroes centrais da plataforma
+  nonGoals:
+    - Modelar detalhes de dominio especificos de um produto
+    - Cobrir requisitos de front-end
+    - Substituir ADRs ou decisoes locais de arquitetura
+
+inputs:
+  - id: repositoryName
+    type: string
+    required: true
+    description: Nome do repositorio a ser criado.
+  - id: serviceName
+    type: string
+    required: true
+    description: Nome logico do servico exposto pela API.
+  - id: solutionName
+    type: string
+    required: true
+    description: Nome da solution .NET.
+  - id: rootNamespace
+    type: string
+    required: true
+    description: Namespace raiz usado nos projetos .NET.
+  - id: targetFramework
+    type: string
+    required: true
+    default: net8.0
+    description: Framework alvo adotado pela API.
+  - id: dotnetImageTag
+    type: string
+    required: false
+    default: "8.0"
+    description: Tag base das imagens .NET usadas no Dockerfile.
+  - id: includeTests
+    type: boolean
+    required: false
+    default: true
+    description: Indica se o scaffolding deve incluir projeto inicial de testes.
+  - id: includeDocker
+    type: boolean
+    required: false
+    default: true
+    description: Indica se o scaffolding deve incluir artefatos basicos de containerizacao.
+
+templateSet:
+  id: api-dotnet-base
+  description: >
+    Conjunto base de templates para estrutura inicial de API .NET.
+  templates:
+    - id: repository-files
+    - id: dotnet-solution
+    - id: api-project
+    - id: test-project
+      when: includeTests == true
+    - id: docker-files
+      when: includeDocker == true
+
+postProcessing:
+  - type: solution-add-project
+    solution: "{{ solutionName }}.sln"
+    project: "src/{{ rootNamespace }}/{{ rootNamespace }}.csproj"
+  - type: solution-add-project
+    when: includeTests == true
+    solution: "{{ solutionName }}.sln"
+    project: "tests/{{ rootNamespace }}.Tests/{{ rootNamespace }}.Tests.csproj"
+
+constraints:
+  - id: repository-name-kebab-case
+    description: O nome do repositorio deve usar kebab-case.
+  - id: root-namespace-pascal-case
+    description: O namespace raiz deve usar PascalCase.
+  - id: solution-name-required
+    description: Toda API deve possuir solution explicita.
+  - id: http-api-scope
+    description: Este archetype deve ser usado apenas para repositorios de API HTTP.
+
+outputs:
+  repositoryType: api
+  platform: dotnet
+  expectedDirectories:
+    - src
+  expectedArtifacts:
+    - README.md
+    - solution-file
+    - api-project
+
+lifecycle:
+  stateModel:
+    - draft
+    - active
+    - deprecated
+  currentStateReason: >
+    Este archetype ainda esta em draft porque a semantica completa de `when`,
+    a validacao de archetypes em pipeline e a implementacao estavel do CLI
+    ainda nao foram consolidadas neste repositorio.
+
+consumerGuidance:
+  forHumans: >
+    Use este archetype quando o objetivo for criar uma API HTTP em .NET com
+    estrutura inicial padronizada e preparada para evolucao governada.
+  forCli: >
+    O CLI deve validar os inputs obrigatorios, aplicar o templateSet declarado,
+    avaliar condicoes `when`, executar o bloco postProcessing publicado e
+    respeitar as constraints publicadas.
+  forAi: >
+    Agentes de IA devem interpretar este archetype como a forma recomendada de
+    iniciar novas APIs .NET, evitando inventar estruturas paralelas.

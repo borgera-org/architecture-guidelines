@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:architecture-guidelines:schemas:example-manifest",
+  "title": "Example Manifest",
+  "description": "Schema oficial para validar manifests de examples materializados a partir de archetypes da plataforma.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "archetypeId",
+    "scenarioId",
+    "snapshotRoot",
+    "description",
+    "inputs",
+    "appliedTemplates",
+    "postProcessing",
+    "expectedFiles",
+    "validationFocus"
+  ],
+  "properties": {
+    "version": {
+      "description": "Versao do formato do manifesto em semver.",
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "archetypeId": {
+      "description": "Identificador do archetype representado pelo example.",
+      "$ref": "#/$defs/kebabIdentifier"
+    },
+    "scenarioId": {
+      "description": "Identificador estavel do cenario de example.",
+      "$ref": "#/$defs/kebabIdentifier"
+    },
+    "snapshotRoot": {
+      "description": "Diretorio raiz do snapshot materializado dentro do cenario.",
+      "$ref": "#/$defs/pathToken"
+    },
+    "description": {
+      "description": "Descricao legivel do cenario representado.",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "inputs": {
+      "description": "Inputs resolvidos usados para materializar o snapshot.",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/inputValue"
+      }
+    },
+    "appliedTemplates": {
+      "description": "Templates aplicados no cenario materializado.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/appliedTemplate"
+      }
+    },
+    "postProcessing": {
+      "description": "Passos de pos-processamento executados ou esperados apos a materializacao dos templates.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/postProcessingStep"
+      }
+    },
+    "expectedFiles": {
+      "description": "Lista de arquivos esperados no snapshot materializado.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/pathToken"
+      }
+    },
+    "validationFocus": {
+      "description": "Lista de aspectos que este example ajuda a validar.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kebabIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "pathToken": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._/-]+$"
+    },
+    "inputValue": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    },
+    "appliedTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "Identificador do template aplicado no cenario.",
+          "$ref": "#/$defs/kebabIdentifier"
+        }
+      }
+    },
+    "postProcessingStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "description": "Tipo do passo de pos-processamento.",
+          "$ref": "#/$defs/kebabIdentifier"
+        },
+        "solution": {
+          "description": "Caminho da solution afetada, quando aplicavel.",
+          "$ref": "#/$defs/pathToken"
+        },
+        "project": {
+          "description": "Caminho do projeto afetado, quando aplicavel.",
+          "$ref": "#/$defs/pathToken"
+        }
+      }
+    }
+  }
+}

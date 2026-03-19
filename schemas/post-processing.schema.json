@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:architecture-guidelines:schemas:post-processing",
+  "title": "Post-Processing Step",
+  "description": "Schema oficial para passos de pos-processamento declarados pela plataforma.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/solutionAddProject"
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "templateablePathToken": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?:[A-Za-z0-9._/-]|\\{\\{\\s*[A-Za-z][A-Za-z0-9]*\\s*\\}\\})+$"
+    },
+    "solutionAddProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "solution",
+        "project"
+      ],
+      "properties": {
+        "type": {
+          "const": "solution-add-project"
+        },
+        "when": {
+          "description": "Condicao declarativa para executar o passo somente quando aplicavel.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "solution": {
+          "description": "Caminho da solution que deve ser atualizada.",
+          "$ref": "#/$defs/templateablePathToken"
+        },
+        "project": {
+          "description": "Caminho do projeto que deve ser adicionado a solution.",
+          "$ref": "#/$defs/templateablePathToken"
+        }
+      }
+    }
+  }
+}
