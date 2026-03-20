@@ -21,6 +21,8 @@ __pycache__/
 venv/
 
 # Generic temporary and diagnostic files
+.tmp-*/
+cli-smoke-*/
 *.tmp
 *.temp
 *.swp

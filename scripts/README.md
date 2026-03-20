@@ -56,8 +56,29 @@ python scripts/validate_example.py
 python scripts/validate_example.py examples/api-dotnet/minimal-default/manifest.yaml
 ```
 
+### `smoke_test_cli.py`
+
+Executa o CLI de referencia contra os manifests oficiais em `examples/` e valida
+o resultado gerado com as mesmas regras estruturais aplicadas aos snapshots de
+referencia.
+
+No estado atual, ele verifica:
+
+- que o CLI consegue materializar cada scenario oficial
+- que os arquivos esperados existem no resultado gerado
+- que os caminhos declarados como ausentes continuam ausentes
+- que o resultado gerado respeita templates, placeholders e pos-processamento
+
+Uso:
+
+```text
+python scripts/smoke_test_cli.py
+python scripts/smoke_test_cli.py examples/api-dotnet/minimal-default/manifest.yaml
+```
+
 ## Uso em CI
 
 A workflow
 [validate-platform.yml](c:/Users/igors/source/repos/architecture-guidelines/.github/workflows/validate-platform.yml)
-executa os dois validadores em pull requests e em push para `main`.
+executa os validadores e o smoke test do CLI em pull requests e em push para
+`main`.
