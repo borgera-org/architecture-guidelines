@@ -16,7 +16,7 @@ from jsonschema import Draft202012Validator
 
 
 CSHARP_PROJECT_TYPE_GUID = "9A19103F-16F7-4668-BE54-9A1E7A4F7556"
-CONTRACTS_ROOT_ENV_VAR = "AG_CONTRACTS_ROOT"
+CONTRACTS_ROOT_ENV_VAR = "BORGERA_CONTRACTS_ROOT"
 BOOLEAN_TRUE = {"true", "1", "yes", "y"}
 BOOLEAN_FALSE = {"false", "0", "no", "n"}
 KEBAB_CASE_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")

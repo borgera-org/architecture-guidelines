@@ -1,4 +1,4 @@
-from cli.app import main
+from borgera_cli.app import main
 
 
 if __name__ == "__main__":

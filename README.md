@@ -33,7 +33,7 @@ A estrutura base atual deste repositorio e:
 
 - `.github/`
   Workflows de automacao e validacao do proprio repositorio.
-- `cli/`
+- `borgera_cli/`
   Implementacao de referencia do CLI que consome os contratos publicados aqui.
 - `docs/`
   Documentacao explicativa para humanos e IA.
@@ -105,8 +105,9 @@ Use este repositorio como:
 - origem dos templates e schemas aplicados na criacao de repositorios
 - referencia para a implementacao inicial do proprio CLI
 
-O CLI agora tambem pode ser instalado localmente como comando `ag`, apontando
-para este repositorio via `--contracts-root` ou `AG_CONTRACTS_ROOT`.
+O CLI agora tambem pode ser instalado localmente como comando `borgera`,
+apontando para este repositorio via `--contracts-root` ou
+`BORGERA_CONTRACTS_ROOT`.
 
 ## Limites de Escopo
 

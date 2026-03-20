@@ -3,10 +3,10 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "architecture-guidelines-cli"
+name = "borgera-cli"
 version = "0.1.0"
 description = "Reference CLI for the architecture-guidelines contract repository."
-readme = "cli/README.md"
+readme = "borgera_cli/README.md"
 requires-python = ">=3.11"
 dependencies = [
   "PyYAML>=6.0",
@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ag = "cli.app:main"
+borgera = "borgera_cli.app:main"
 
 [tool.setuptools.packages.find]
-include = ["cli"]
+include = ["borgera_cli"]

@@ -206,8 +206,8 @@ Esses pontos pertencem a implementacao do produto CLI, nao ao contrato arquitetu
 Este contrato ja e suficiente para orientar e sustentar uma primeira implementacao funcional do CLI.
 
 No estado atual, essa primeira implementacao de referencia ja existe em
-[cli/](c:/Users/igors/source/repos/architecture-guidelines/cli/README.md), pode
-ser instalada como comando `ag` e e exercitada pelos manifests oficiais em
+[borgera_cli/](c:/Users/igors/source/repos/architecture-guidelines/borgera_cli/README.md), pode
+ser instalada como comando `borgera` e e exercitada pelos manifests oficiais em
 `examples/`.
 
 Mesmo assim, ele ainda pode evoluir em pontos como:

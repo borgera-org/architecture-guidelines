@@ -29,7 +29,7 @@ jobs:
           python -m pip install -e .
 
       - name: Smoke-test CLI entry point
-        run: ag list-archetypes --contracts-root .
+        run: borgera list-archetypes --contracts-root .
 
       - name: Validate archetypes
         run: python scripts/validate_archetypes.py
