@@ -105,6 +105,9 @@ Use este repositorio como:
 - origem dos templates e schemas aplicados na criacao de repositorios
 - referencia para a implementacao inicial do proprio CLI
 
+O CLI agora tambem pode ser instalado localmente como comando `ag`, apontando
+para este repositorio via `--contracts-root` ou `AG_CONTRACTS_ROOT`.
+
 ## Limites de Escopo
 
 Este repositorio deve conter:

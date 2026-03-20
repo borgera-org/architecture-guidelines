@@ -2,9 +2,9 @@
 
 ## Proposito
 
-Este diretorio contem a primeira implementacao de referencia do CLI que consome os contratos publicados neste repositorio.
+Este diretorio contem a implementacao de referencia do CLI que consome os contratos publicados neste repositorio.
 
-Ela existe para exercitar o baseline atual da plataforma com um fluxo real de scaffolding, sem ainda tratar distribuicao, empacotamento ou experiencia final de produto.
+Ele existe para exercitar o baseline atual da plataforma com um fluxo real de scaffolding e, agora, tambem pode ser instalado como comando local `ag`.
 
 ## Escopo Atual
 
@@ -32,9 +32,43 @@ Tambem e possivel fornecer valores por arquivo YAML:
 python -m cli scaffold api-dotnet --destination . --values-file path/to/inputs.yaml
 ```
 
+## Instalacao
+
+Para instalar o CLI no ambiente local a partir deste repositorio:
+
+```text
+python -m pip install -e .
+```
+
+Depois disso, o comando `ag` fica disponivel no terminal:
+
+```text
+ag list-archetypes
+ag scaffold api-dotnet --destination . --set repositoryName=billing-api --set serviceName=billing-api --set solutionName=Billing.Api --set rootNamespace=Billing.Api
+```
+
+## Contracts Root
+
+O CLI agora aceita um contracts root explicito para funcionar a partir de qualquer workspace:
+
+```text
+ag list-archetypes --contracts-root C:/Users/igors/source/repos/architecture-guidelines
+ag scaffold api-dotnet --contracts-root C:/Users/igors/source/repos/architecture-guidelines --destination C:/Users/igors/source/repos
+```
+
+Tambem e possivel definir a variavel de ambiente `AG_CONTRACTS_ROOT`.
+
+Com isso, o CLI pode:
+
+- inferir o contracts root quando instalado de forma editavel a partir deste repo
+- apontar para um clone especifico do repositório central
+- ser usado em outra instancia do VSCode sem precisar abrir este workspace
+
 ## Decisoes da Primeira Versao
 
 - a implementacao foi mantida em Python para reaproveitar o ecossistema de validacao ja existente no repositorio
+- o CLI pode ser instalado com `pip` e exposto como comando `ag`
+- o motor do CLI consome um contracts root externo em vez de depender do workspace atual
 - o comando `scaffold` cria o repositorio em `--destination/<repositoryName>`
 - conflitos de template no mesmo caminho falham explicitamente
 - a validacao de constraints continua limitada ao que ja e pragmaticamente verificavel no contrato atual
@@ -43,7 +77,6 @@ python -m cli scaffold api-dotnet --destination . --values-file path/to/inputs.y
 
 Esta primeira implementacao ainda nao cobre:
 
-- distribuicao como ferramenta instalada no ambiente
 - interacao guiada por prompts
 - criacao de repositorio remoto
 - commits Git automaticos
