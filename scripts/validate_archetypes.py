@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -14,6 +15,7 @@ ARCHETYPES_ROOT = REPO_ROOT / "archetypes"
 TEMPLATES_ROOT = REPO_ROOT / "templates"
 ARCHETYPE_SCHEMA_PATH = REPO_ROOT / "schemas" / "archetype.schema.json"
 POST_PROCESSING_SCHEMA_PATH = REPO_ROOT / "schemas" / "post-processing.schema.json"
+WHEN_PATTERN = re.compile(r"^\s*([a-z][A-Za-z0-9]*)\s*==\s*(true|false)\s*$")
 
 
 def load_yaml(path: Path) -> dict:
@@ -85,6 +87,66 @@ def validate_archetype_structure(definition: dict, definition_path: Path) -> lis
     return errors
 
 
+def validate_when_expression(
+    expression: str,
+    definition_path: Path,
+    location: str,
+    boolean_inputs: set[str],
+) -> list[str]:
+    match = WHEN_PATTERN.fullmatch(expression)
+    if not match:
+        return [
+            (
+                f"{definition_path}: {location} uses unsupported when expression {expression!r}. "
+                "Supported format is '<booleanInput> == true|false'."
+            )
+        ]
+
+    input_id = match.group(1)
+    if input_id not in boolean_inputs:
+        return [
+            (
+                f"{definition_path}: {location} references {input_id!r}, "
+                "but only declared boolean inputs may be used in when expressions."
+            )
+        ]
+
+    return []
+
+
+def validate_when_semantics(definition: dict, definition_path: Path) -> list[str]:
+    errors = []
+    boolean_inputs = {
+        item.get("id")
+        for item in definition.get("inputs", [])
+        if isinstance(item, dict) and item.get("type") == "boolean" and isinstance(item.get("id"), str)
+    }
+
+    for index, entry in enumerate(definition.get("templateSet", {}).get("templates", [])):
+        if isinstance(entry, dict) and isinstance(entry.get("when"), str):
+            errors.extend(
+                validate_when_expression(
+                    entry["when"],
+                    definition_path,
+                    f"templateSet.templates[{index}].when",
+                    boolean_inputs,
+                )
+            )
+
+    for index, step in enumerate(definition.get("postProcessing", [])):
+        if isinstance(step, dict) and isinstance(step.get("when"), str):
+            errors.extend(
+                validate_when_expression(
+                    step["when"],
+                    definition_path,
+                    f"postProcessing[{index}].when",
+                    boolean_inputs,
+                )
+            )
+
+    return errors
+
+
 def validate_post_processing(definition: dict, definition_path: Path, schema: dict) -> list[str]:
     validator = Draft202012Validator(schema)
     errors = []
@@ -121,6 +183,7 @@ def validate_definition(definition_path: Path, archetype_schema: dict, post_proc
 
     if not errors:
         errors.extend(validate_archetype_structure(definition, definition_path))
+        errors.extend(validate_when_semantics(definition, definition_path))
         errors.extend(validate_post_processing(definition, definition_path, post_processing_schema))
 
     return errors

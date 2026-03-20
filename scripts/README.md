@@ -20,6 +20,7 @@ No estado atual, ele verifica:
 
 - aderencia de `definition.yaml` ao schema do archetype
 - aderencia de cada passo de `postProcessing` ao schema proprio
+- aderencia semantica de `when` ao subset booleano suportado
 - existencia de `README.md` no diretorio do archetype
 - consistencia entre `id` do archetype e nome do diretorio
 - existencia local dos templates referenciados em `templateSet`

@@ -194,7 +194,7 @@ Os seguintes pontos ainda estao em aberto:
 - a lista oficial de tipos de acao suportados
 - o limite entre pos-processamento generico e logica especifica do CLI
 - como versionar novas acoes sem quebrar consumidores
-- como a linguagem `when` sera formalizada de forma mais rigorosa
+- se o subset atual de `when` precisara ser ampliado no futuro
 
 ## Regra Pratica
 

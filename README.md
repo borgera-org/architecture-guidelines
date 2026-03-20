@@ -64,6 +64,12 @@ Isso significa que mudancas neste repositorio podem impactar diretamente os repo
 
 Use [baseline-2026-03-19.md](c:/Users/igors/source/repos/architecture-guidelines/docs/baseline-2026-03-19.md) como checkpoint operacional do estado atual da plataforma.
 
+Para regras de maturidade e promocao de archetypes, use
+[archetype-lifecycle.md](c:/Users/igors/source/repos/architecture-guidelines/docs/archetype-lifecycle.md).
+
+A avaliacao formal que promoveu o primeiro archetype para `active` esta em
+[api-dotnet-active-evaluation-2026-03-19.md](c:/Users/igors/source/repos/architecture-guidelines/docs/api-dotnet-active-evaluation-2026-03-19.md).
+
 Ele consolida:
 
 - decisoes estruturais ja tomadas
@@ -125,9 +131,9 @@ Em especial:
 
 Os proximos focos de evolucao deste repositorio sao:
 
-1. revisar a maturidade do archetype `api-dotnet`
-2. iniciar o proximo archetype oficial
-3. continuar reduzindo lacunas na semantica de `when`
+1. iniciar o proximo archetype oficial
+2. exercitar o contrato publicado em uma implementacao inicial do CLI
+3. evoluir a cobertura de validacao conforme novos archetypes surgirem
 4. evoluir a estrategia de versionamento dos contratos da plataforma
 
 Use [baseline-2026-03-19.md](c:/Users/igors/source/repos/architecture-guidelines/docs/baseline-2026-03-19.md) como checkpoint operacional mais atualizado.
