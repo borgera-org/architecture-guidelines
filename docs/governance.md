@@ -238,6 +238,18 @@ Enquanto nao houver um modelo organizacional mais formal, toda mudanca relevante
 - compatibilidade
 - custo de migracao, quando houver
 
+## Ciclo de Vida de Archetypes
+
+Mudancas de estado de archetypes nao devem ser tratadas como ajuste editorial.
+
+Promocoes e descontinuacoes devem seguir os criterios publicados em
+[archetype-lifecycle.md](c:/Users/igors/source/repos/architecture-guidelines/docs/archetype-lifecycle.md).
+
+Em especial:
+
+- promover de `draft` para `active` exige evidencia objetiva de maturidade contratual
+- marcar como `deprecated` exige justificativa explicita e orientacao de transicao quando aplicavel
+
 ## O Que Sempre Deve Acompanhar Uma Mudanca Relevante
 
 Sempre que uma mudanca afetar contratos, templates ou comportamento esperado, ela deve vir acompanhada de:

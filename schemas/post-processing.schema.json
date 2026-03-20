@@ -9,15 +9,19 @@
     }
   ],
   "$defs": {
-    "nonEmptyString": {
-      "type": "string",
-      "minLength": 1
-    },
-    "templateablePathToken": {
-      "type": "string",
-      "minLength": 1,
-      "pattern": "^(?:[A-Za-z0-9._/-]|\\{\\{\\s*[A-Za-z][A-Za-z0-9]*\\s*\\}\\})+$"
-    },
+      "nonEmptyString": {
+        "type": "string",
+        "minLength": 1
+      },
+      "conditionExpression": {
+        "type": "string",
+        "pattern": "^\\s*[a-z][A-Za-z0-9]*\\s*==\\s*(true|false)\\s*$"
+      },
+      "templateablePathToken": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?:[A-Za-z0-9._/-]|\\{\\{\\s*[A-Za-z][A-Za-z0-9]*\\s*\\}\\})+$"
+      },
     "solutionAddProject": {
       "type": "object",
       "additionalProperties": false,
@@ -32,7 +36,7 @@
         },
         "when": {
           "description": "Condicao declarativa para executar o passo somente quando aplicavel.",
-          "$ref": "#/$defs/nonEmptyString"
+          "$ref": "#/$defs/conditionExpression"
         },
         "solution": {
           "description": "Caminho da solution que deve ser atualizada.",

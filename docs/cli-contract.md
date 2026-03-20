@@ -99,8 +99,9 @@ No estado atual da plataforma, a linguagem de condicao deve ser tratada como del
 
 O contrato minimo que o CLI deve suportar agora e:
 
-- comparacao booleana simples, como `includeTests == true`
-- comparacao contra inputs conhecidos do archetype
+- comparacao booleana simples no formato `<booleanInput> == true|false`
+- uso apenas de inputs booleanos declarados no proprio archetype
+- falha explicita quando a expressao nao obedecer esse subset
 
 O CLI nao deve inventar uma linguagem mais ampla sem que isso seja formalizado neste repositorio.
 
@@ -206,10 +207,10 @@ Este contrato ja e suficiente para orientar uma primeira implementacao funcional
 
 Mesmo assim, ele ainda pode evoluir em pontos como:
 
-- linguagem formal para `when`
 - validacao automatizada de examples
 - versionamento mais explicito de contratos e templates
 - ampliacao do catalogo de acoes de pos-processamento
+- ampliacao controlada da linguagem de `when`, se isso se mostrar necessario
 
 ## Regra Pratica
 

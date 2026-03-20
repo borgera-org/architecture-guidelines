@@ -175,17 +175,18 @@ separadamente.
 
 Status atual:
 
-- `draft`
+- `active`
 
 Isso significa que:
 
 - o contrato estrutural inicial ja foi definido
 - o schema inicial do archetype ja foi formalizado
 - os templates iniciais ja foram criados neste repositorio
-- ja existe example oficial materializado com validacao automatizada basica
+- ja existem examples oficiais materializados para o caminho padrao e para as variacoes condicionais principais
 - ja existe validacao automatizada local e em CI para contratos principais
 - o pos-processamento necessario ja foi declarado no contrato do archetype
-- o archetype continua em draft porque a semantica completa de `when`, a cobertura com mais examples oficiais e a implementacao estavel do CLI ainda nao foram fechadas
+- a semantica atual de `when` ja foi reduzida para um subset booleano explicito e validado
+- o archetype foi avaliado formalmente contra [archetype-lifecycle.md](c:/Users/igors/source/repos/architecture-guidelines/docs/archetype-lifecycle.md) e passou a ser o caminho oficial da plataforma para novas APIs HTTP em `.NET`
 
 ## Relacao com o CLI
 
@@ -217,7 +218,7 @@ Este archetype ainda nao define:
 - a estrutura interna detalhada dos projetos .NET
 - o padrao arquitetural interno da aplicacao
 - convencoes de observabilidade, seguranca ou CI
-- a semantica formal da linguagem de condicoes usada em `templateSet`
+- uma linguagem de condicoes maior do que o subset booleano atual usado em `templateSet`
 - tipos adicionais de pos-processamento alem de `solution-add-project`
 
 Esses pontos devem aparecer nos proximos artefatos da plataforma.

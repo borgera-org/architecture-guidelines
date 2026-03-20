@@ -5,7 +5,7 @@ description: >
   padronizada para consumo por times internos, agentes de IA e pelo CLI de
   scaffolding.
 version: 0.1.0
-status: draft
+status: active
 
 metadata:
   owner: architecture-guidelines
@@ -111,9 +111,10 @@ lifecycle:
     - active
     - deprecated
   currentStateReason: >
-    Este archetype ainda esta em draft porque a semantica completa de `when`,
-    a cobertura com mais examples oficiais e a implementacao estavel do CLI
-    ainda nao foram consolidadas neste repositorio.
+    Este archetype foi promovido para `active` em 2026-03-19 apos avaliacao
+    formal contra `docs/archetype-lifecycle.md`, com contrato estrutural
+    completo, cobertura oficial de examples, validacao automatizada e ausencia
+    de lacuna contratual critica conhecida.
 
 consumerGuidance:
   forHumans: >
