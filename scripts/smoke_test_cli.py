@@ -37,6 +37,7 @@ def smoke_test_manifest(manifest_path: Path, schema: dict) -> list[str]:
             archetype_id=manifest["archetypeId"],
             destination_parent=temp_root,
             provided_values=manifest["inputs"],
+            contracts_root=REPO_ROOT,
         )
         temp_manifest_path = temp_root / "manifest.yaml"
         return validate_example.validate_snapshot(manifest, temp_manifest_path)

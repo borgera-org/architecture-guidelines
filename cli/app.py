@@ -1,37 +1,52 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import re
 import shutil
 import sys
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
-from scripts.validate_archetypes import (
-    ARCHETYPE_SCHEMA_PATH,
-    ARCHETYPES_ROOT,
-    POST_PROCESSING_SCHEMA_PATH,
-    TEMPLATES_ROOT,
-    WHEN_PATTERN,
-    load_json,
-    load_yaml,
-    validate_definition,
-)
-from scripts.validate_example import build_solution_project_reference, render_output_relative_path, render_text
+import yaml
+from jsonschema import Draft202012Validator
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
 CSHARP_PROJECT_TYPE_GUID = "9A19103F-16F7-4668-BE54-9A1E7A4F7556"
+CONTRACTS_ROOT_ENV_VAR = "AG_CONTRACTS_ROOT"
 BOOLEAN_TRUE = {"true", "1", "yes", "y"}
 BOOLEAN_FALSE = {"false", "0", "no", "n"}
 KEBAB_CASE_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PASCAL_SEGMENT_PATTERN = re.compile(r"^[A-Z][A-Za-z0-9]*$")
+PLACEHOLDER_PATTERN = re.compile(r"\{\{\s*[^}]+\s*\}\}")
+WHEN_PATTERN = re.compile(r"^\s*([a-z][A-Za-z0-9]*)\s*==\s*(true|false)\s*$")
 
 
 class CliError(Exception):
     pass
+
+
+@dataclass(frozen=True)
+class ContractsRepository:
+    root: Path
+    archetypes_root: Path
+    templates_root: Path
+    archetype_schema_path: Path
+    post_processing_schema_path: Path
+
+    @classmethod
+    def from_root(cls, root: Path) -> "ContractsRepository":
+        resolved_root = root.expanduser().resolve()
+        return cls(
+            root=resolved_root,
+            archetypes_root=resolved_root / "archetypes",
+            templates_root=resolved_root / "templates",
+            archetype_schema_path=resolved_root / "schemas" / "archetype.schema.json",
+            post_processing_schema_path=resolved_root / "schemas" / "post-processing.schema.json",
+        )
 
 
 @dataclass
@@ -47,11 +62,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        contracts = resolve_contracts_repository(args.contracts_root)
+
         if args.command == "list-archetypes":
-            return run_list_archetypes()
+            return run_list_archetypes(contracts)
 
         if args.command == "scaffold":
-            provided_values = {}
+            provided_values: dict[str, Any] = {}
             if args.values_file:
                 provided_values.update(load_values_file(Path(args.values_file)))
             provided_values.update(parse_set_arguments(args.set_values))
@@ -60,6 +77,7 @@ def main(argv: list[str] | None = None) -> int:
                 archetype_id=args.archetype_id,
                 destination_parent=Path(args.destination),
                 provided_values=provided_values,
+                contracts=contracts,
             )
             print(f"Scaffolded {result.archetype_id} into {result.repository_path}")
             print(f"Applied templates: {', '.join(result.applied_templates)}")
@@ -80,14 +98,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Reference CLI for scaffolding repositories from the platform contracts."
     )
+    add_contracts_root_argument(parser)
     subparsers = parser.add_subparsers(dest="command")
 
-    subparsers.add_parser("list-archetypes", help="List archetypes published in this repository.")
+    list_parser = subparsers.add_parser("list-archetypes", help="List archetypes published in the contracts root.")
+    add_contracts_root_argument(list_parser)
 
     scaffold_parser = subparsers.add_parser(
         "scaffold",
         help="Materialize a repository from an archetype definition.",
     )
+    add_contracts_root_argument(scaffold_parser)
     scaffold_parser.add_argument("archetype_id", help="Archetype identifier, for example api-dotnet.")
     scaffold_parser.add_argument(
         "--destination",
@@ -109,8 +130,18 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def run_list_archetypes() -> int:
-    for definition_path in sorted(ARCHETYPES_ROOT.glob("*/definition.yaml")):
+def add_contracts_root_argument(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--contracts-root",
+        help=(
+            "Path to the architecture-guidelines contracts repository. "
+            f"Defaults to ${CONTRACTS_ROOT_ENV_VAR} or an inferred source checkout when available."
+        ),
+    )
+
+
+def run_list_archetypes(contracts: ContractsRepository) -> int:
+    for definition_path in sorted(contracts.archetypes_root.glob("*/definition.yaml")):
         definition = load_yaml(definition_path)
         print(f"{definition['id']}\t{definition['status']}\t{definition['name']}")
     return 0
@@ -140,12 +171,19 @@ def parse_set_arguments(raw_values: list[str]) -> dict[str, str]:
     return parsed
 
 
-def scaffold_repository(archetype_id: str, destination_parent: Path, provided_values: dict[str, Any]) -> ScaffoldResult:
-    definition_path = ARCHETYPES_ROOT / archetype_id / "definition.yaml"
-    archetype_schema = load_json(ARCHETYPE_SCHEMA_PATH)
-    post_processing_schema = load_json(POST_PROCESSING_SCHEMA_PATH)
+def scaffold_repository(
+    archetype_id: str,
+    destination_parent: Path,
+    provided_values: dict[str, Any],
+    contracts: ContractsRepository | None = None,
+    contracts_root: str | Path | None = None,
+) -> ScaffoldResult:
+    active_contracts = contracts or resolve_contracts_repository(contracts_root)
+    definition_path = active_contracts.archetypes_root / archetype_id / "definition.yaml"
+    archetype_schema = load_json(active_contracts.archetype_schema_path)
+    post_processing_schema = load_json(active_contracts.post_processing_schema_path)
 
-    errors = validate_definition(definition_path, archetype_schema, post_processing_schema)
+    errors = validate_definition(definition_path, archetype_schema, post_processing_schema, active_contracts)
     if errors:
         raise CliError("\n".join(errors))
 
@@ -161,7 +199,7 @@ def scaffold_repository(archetype_id: str, destination_parent: Path, provided_va
 
     applied_templates: list[str] = []
     for template_id in select_templates(definition, resolved_values):
-        apply_template(template_id, repository_path, resolved_values)
+        apply_template(template_id, repository_path, resolved_values, active_contracts)
         applied_templates.append(template_id)
 
     executed_post_processing = execute_post_processing(definition, repository_path, resolved_values)
@@ -172,6 +210,241 @@ def scaffold_repository(archetype_id: str, destination_parent: Path, provided_va
         applied_templates=applied_templates,
         executed_post_processing=executed_post_processing,
     )
+
+
+def resolve_contracts_repository(requested_root: str | Path | None) -> ContractsRepository:
+    if requested_root:
+        return build_contracts_repository(Path(requested_root), "--contracts-root")
+
+    environment_root = os.getenv(CONTRACTS_ROOT_ENV_VAR)
+    if environment_root:
+        return build_contracts_repository(Path(environment_root), CONTRACTS_ROOT_ENV_VAR)
+
+    inferred_root = infer_source_contracts_root()
+    if inferred_root is not None:
+        return build_contracts_repository(inferred_root, "inferred source checkout")
+
+    current_working_directory = Path.cwd().resolve()
+    if looks_like_contracts_root(current_working_directory):
+        return build_contracts_repository(current_working_directory, "current working directory")
+
+    raise CliError(
+        "Contracts root could not be inferred. Use --contracts-root or set "
+        f"{CONTRACTS_ROOT_ENV_VAR} to the architecture-guidelines repository clone."
+    )
+
+
+def infer_source_contracts_root() -> Path | None:
+    source_root = Path(__file__).resolve().parent.parent
+    if looks_like_contracts_root(source_root):
+        return source_root
+    return None
+
+
+def build_contracts_repository(root: Path, source_label: str) -> ContractsRepository:
+    contracts = ContractsRepository.from_root(root)
+    missing = missing_contract_artifacts(contracts)
+    if missing:
+        formatted_missing = ", ".join(missing)
+        raise CliError(
+            f"{source_label} does not point to a valid contracts repository: {contracts.root}. "
+            f"Missing: {formatted_missing}"
+        )
+    return contracts
+
+
+def looks_like_contracts_root(root: Path) -> bool:
+    contracts = ContractsRepository.from_root(root)
+    return not missing_contract_artifacts(contracts)
+
+
+def missing_contract_artifacts(contracts: ContractsRepository) -> list[str]:
+    missing: list[str] = []
+    if not contracts.archetypes_root.is_dir():
+        missing.append("archetypes/")
+    if not contracts.templates_root.is_dir():
+        missing.append("templates/")
+    if not contracts.archetype_schema_path.is_file():
+        missing.append("schemas/archetype.schema.json")
+    if not contracts.post_processing_schema_path.is_file():
+        missing.append("schemas/post-processing.schema.json")
+    return missing
+
+
+def load_yaml(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = yaml.safe_load(handle)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} must contain a YAML object at the root.")
+    return data
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} must contain a JSON object at the root.")
+    return data
+
+
+def validate_definition(
+    definition_path: Path,
+    archetype_schema: dict[str, Any],
+    post_processing_schema: dict[str, Any],
+    contracts: ContractsRepository,
+) -> list[str]:
+    if not definition_path.is_file():
+        return [f"{definition_path}: definition file not found."]
+
+    try:
+        definition = load_yaml(definition_path)
+    except Exception as exc:  # noqa: BLE001
+        return [f"{definition_path}: failed to parse YAML: {exc}"]
+
+    errors: list[str] = []
+    errors.extend(validate_schema(definition, definition_path, archetype_schema))
+
+    if not errors:
+        errors.extend(validate_archetype_structure(definition, definition_path, contracts))
+        errors.extend(validate_when_semantics(definition, definition_path))
+        errors.extend(validate_post_processing(definition, definition_path, post_processing_schema))
+
+    return errors
+
+
+def validate_schema(definition: dict[str, Any], definition_path: Path, schema: dict[str, Any]) -> list[str]:
+    validator = Draft202012Validator(schema)
+    errors: list[str] = []
+    for error in sorted(validator.iter_errors(definition), key=lambda item: list(item.path)):
+        location = ".".join(str(part) for part in error.path) or "<root>"
+        errors.append(f"{definition_path}: schema error at {location}: {error.message}")
+    return errors
+
+
+def validate_archetype_structure(
+    definition: dict[str, Any],
+    definition_path: Path,
+    contracts: ContractsRepository,
+) -> list[str]:
+    errors: list[str] = []
+    archetype_dir = definition_path.parent
+    expected_id = definition.get("id")
+
+    if expected_id and archetype_dir.name != expected_id:
+        errors.append(
+            f"{definition_path}: archetype directory name {archetype_dir.name!r} must match id {expected_id!r}"
+        )
+
+    readme_path = archetype_dir / "README.md"
+    if not readme_path.is_file():
+        errors.append(f"{definition_path}: README.md not found for archetype {archetype_dir.name}")
+
+    input_ids = [item.get("id") for item in definition.get("inputs", []) if isinstance(item, dict)]
+    if len(input_ids) != len(set(input_ids)):
+        errors.append(f"{definition_path}: duplicate input ids found in inputs")
+
+    template_ids: list[str] = []
+    for entry in definition.get("templateSet", {}).get("templates", []):
+        if isinstance(entry, str):
+            template_ids.append(entry)
+        elif isinstance(entry, dict):
+            template_ids.append(entry.get("id", ""))
+
+    duplicates = find_duplicates(template_ids)
+    if duplicates:
+        duplicate_list = ", ".join(sorted(duplicates))
+        errors.append(f"{definition_path}: duplicate template ids found in templateSet: {duplicate_list}")
+
+    for template_id in template_ids:
+        template_root = contracts.templates_root / template_id
+        if not template_root.is_dir():
+            errors.append(f"{definition_path}: referenced template not found: {template_id}")
+
+    return errors
+
+
+def validate_when_semantics(definition: dict[str, Any], definition_path: Path) -> list[str]:
+    errors: list[str] = []
+    boolean_inputs = {
+        item.get("id")
+        for item in definition.get("inputs", [])
+        if isinstance(item, dict) and item.get("type") == "boolean" and isinstance(item.get("id"), str)
+    }
+
+    for index, entry in enumerate(definition.get("templateSet", {}).get("templates", [])):
+        if isinstance(entry, dict) and isinstance(entry.get("when"), str):
+            errors.extend(
+                validate_when_expression(
+                    entry["when"],
+                    definition_path,
+                    f"templateSet.templates[{index}].when",
+                    boolean_inputs,
+                )
+            )
+
+    for index, step in enumerate(definition.get("postProcessing", [])):
+        if isinstance(step, dict) and isinstance(step.get("when"), str):
+            errors.extend(
+                validate_when_expression(
+                    step["when"],
+                    definition_path,
+                    f"postProcessing[{index}].when",
+                    boolean_inputs,
+                )
+            )
+
+    return errors
+
+
+def validate_when_expression(
+    expression: str,
+    definition_path: Path,
+    location: str,
+    boolean_inputs: set[str],
+) -> list[str]:
+    match = WHEN_PATTERN.fullmatch(expression)
+    if not match:
+        return [
+            (
+                f"{definition_path}: {location} uses unsupported when expression {expression!r}. "
+                "Supported format is '<booleanInput> == true|false'."
+            )
+        ]
+
+    input_id = match.group(1)
+    if input_id not in boolean_inputs:
+        return [
+            (
+                f"{definition_path}: {location} references {input_id!r}, "
+                "but only declared boolean inputs may be used in when expressions."
+            )
+        ]
+
+    return []
+
+
+def validate_post_processing(
+    definition: dict[str, Any],
+    definition_path: Path,
+    schema: dict[str, Any],
+) -> list[str]:
+    validator = Draft202012Validator(schema)
+    errors: list[str] = []
+    for index, step in enumerate(definition.get("postProcessing", [])):
+        for error in sorted(validator.iter_errors(step), key=lambda item: list(item.path)):
+            location = ".".join(str(part) for part in error.path) or "<root>"
+            errors.append(f"{definition_path}: postProcessing[{index}] error at {location}: {error.message}")
+    return errors
+
+
+def find_duplicates(values: list[str]) -> set[str]:
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for value in values:
+        if value in seen:
+            duplicates.add(value)
+        seen.add(value)
+    return duplicates
 
 
 def resolve_inputs(definition: dict[str, Any], provided_values: dict[str, Any]) -> dict[str, Any]:
@@ -302,8 +575,13 @@ def evaluate_when(expression: str | None, context: dict[str, Any]) -> bool:
     return actual_value is expected_value
 
 
-def apply_template(template_id: str, repository_path: Path, context: dict[str, Any]) -> None:
-    template_root = TEMPLATES_ROOT / template_id / "files"
+def apply_template(
+    template_id: str,
+    repository_path: Path,
+    context: dict[str, Any],
+    contracts: ContractsRepository,
+) -> None:
+    template_root = contracts.templates_root / template_id / "files"
     if not template_root.is_dir():
         raise CliError(f"Template payload not found: {template_id}")
 
@@ -315,6 +593,7 @@ def apply_template(template_id: str, repository_path: Path, context: dict[str, A
             relative_output_path = render_output_relative_path(source_path.relative_to(template_root), context)
         except KeyError as exc:
             raise CliError(f"Missing value for placeholder {exc.args[0]!r}.") from exc
+
         destination_path = repository_path / relative_output_path
         destination_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -326,6 +605,26 @@ def apply_template(template_id: str, repository_path: Path, context: dict[str, A
             write_text_file(destination_path, rendered_content)
         else:
             shutil.copyfile(source_path, destination_path)
+
+
+def render_output_relative_path(source_relative_path: Path, context: dict[str, Any]) -> Path:
+    rendered_parts = []
+    for index, part in enumerate(source_relative_path.parts):
+        rendered_part = render_text(part, context)
+        if index == len(source_relative_path.parts) - 1 and rendered_part.endswith(".tpl"):
+            rendered_part = rendered_part[:-4]
+        rendered_parts.append(rendered_part)
+    return Path(*rendered_parts)
+
+
+def render_text(template_text: str, context: dict[str, Any]) -> str:
+    def replace(match: re.Match[str]) -> str:
+        key = match.group(0)[2:-2].strip()
+        if key not in context:
+            raise KeyError(key)
+        return stringify_value(context[key])
+
+    return PLACEHOLDER_PATTERN.sub(replace, template_text)
 
 
 def write_text_file(path: Path, content: str) -> None:
@@ -373,6 +672,11 @@ def add_project_to_solution(solution_path: Path, project_path: Path) -> None:
     )
 
     write_solution(solution_path, existing_projects)
+
+
+def build_solution_project_reference(solution_path: Path, project_path: Path) -> str:
+    relative_path = os.path.relpath(project_path, solution_path.parent)
+    return str(PureWindowsPath(relative_path))
 
 
 def parse_solution_projects(solution_path: Path) -> list[dict[str, str]]:
