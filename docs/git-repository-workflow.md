@@ -20,9 +20,12 @@ Este documento trata de:
 
 Este documento nao define:
 
-- estrategia de branching corporativa detalhada
+- estrategia de branching detalhada
 - politica organizacional completa de PR
 - regras de protecao de branch especificas da ferramenta de hospedagem
+
+Para branching, commits, pull requests e release do repositorio central, use
+[git-branching-and-release-flow.md](c:/Users/igors/source/repos/architecture-guidelines/docs/git-branching-and-release-flow.md).
 
 ## Dois Tipos de Repositorio
 
