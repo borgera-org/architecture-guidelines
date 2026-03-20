@@ -1,0 +1,52 @@
+version: 0.1.0
+archetypeId: api-dotnet
+scenarioId: without-tests
+snapshotRoot: billing-api
+description: >
+  Manifesto de referencia para o snapshot materializado do archetype
+  api-dotnet no cenario com Docker habilitado e sem projeto inicial de testes.
+
+inputs:
+  repositoryName: billing-api
+  serviceName: billing-api
+  solutionName: Billing.Api
+  rootNamespace: Billing.Api
+  targetFramework: net8.0
+  dotnetImageTag: "8.0"
+  includeTests: false
+  includeDocker: true
+
+appliedTemplates:
+  - id: repository-files
+  - id: dotnet-solution
+  - id: api-project
+  - id: docker-files
+
+postProcessing:
+  - type: solution-add-project
+    solution: billing-api/Billing.Api.sln
+    project: billing-api/src/Billing.Api/Billing.Api.csproj
+
+expectedFiles:
+  - billing-api/.dockerignore
+  - billing-api/.editorconfig
+  - billing-api/.gitattributes
+  - billing-api/.gitignore
+  - billing-api/README.md
+  - billing-api/Billing.Api.sln
+  - billing-api/Directory.Build.props
+  - billing-api/Dockerfile
+  - billing-api/src/Billing.Api/Billing.Api.csproj
+  - billing-api/src/Billing.Api/Program.cs
+  - billing-api/src/Billing.Api/appsettings.json
+  - billing-api/src/Billing.Api/appsettings.Development.json
+  - billing-api/src/Billing.Api/Properties/launchSettings.json
+
+expectedAbsentPaths:
+  - billing-api/tests
+
+validationFocus:
+  - selecao condicional de templates sem projeto de testes
+  - ausencia de diretorio tests no snapshot materializado
+  - ausencia de pos-processamento para projeto de testes
+  - integridade da solution contendo apenas o projeto principal

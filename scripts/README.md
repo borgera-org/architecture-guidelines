@@ -40,10 +40,11 @@ No estado atual, ele verifica:
 
 - aderencia do manifesto ao schema
 - existencia dos arquivos declarados em `expectedFiles`
+- ausencia dos caminhos declarados em `expectedAbsentPaths`
 - existencia dos caminhos referenciados em `postProcessing`
 - ausencia de placeholders nao resolvidos em caminhos e conteudo do snapshot
 - aderencia do snapshot ao resultado renderizado dos templates aplicados
-- presenca dos projetos esperados dentro da solution para passos `solution-add-project`
+- correspondencia exata entre os projetos declarados em `postProcessing` e os projetos presentes na solution
 
 Arquivos afetados por pos-processamento, como a `.sln`, nao sao comparados por conteudo bruto com o template original. Nesses casos, o script aplica validacoes especificas de pos-processamento.
 

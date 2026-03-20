@@ -27,19 +27,21 @@ Os cenarios mais naturais para este archetype sao:
 - API minima sem testes
 - API minima sem Docker
 
-Nem todos esses cenarios precisam existir agora. Eles devem surgir apenas quando agregarem valor real de referencia.
+No estado atual, os cenarios `minimal-default` e `without-tests` ja existem
+como referencia.
 
-## Primeiro Example Recomendado
+## Primeiros Examples Recomendados
 
-O primeiro example recomendado para este archetype e:
+Os primeiros examples recomendados para este archetype sao:
 
 - `minimal-default`
+- `without-tests`
 
-Razao:
+Razoes:
 
-- representa o caminho padrao mais completo do archetype
-- ajuda a validar a interacao entre `repository-files`, `dotnet-solution`, `api-project`, `test-project` e `docker-files`
-- reduz ambiguidades antes de examples mais especializados
+- `minimal-default` representa o caminho padrao mais completo do archetype
+- `without-tests` prova a selecao condicional de templates e pos-processamento
+- os dois juntos reduzem ambiguidades antes de examples mais especializados
 
 ## O Que Um Example Deve Mostrar
 
@@ -62,4 +64,4 @@ Se a variacao nao altera entendimento nem validacao do resultado final, ela prov
 
 ## Proximo Passo
 
-O proximo passo esperado neste diretorio e criar o primeiro cenario `minimal-default`.
+O proximo passo esperado neste diretorio e criar o cenario `without-docker`.
