@@ -112,7 +112,7 @@ lifecycle:
     - deprecated
   currentStateReason: >
     Este archetype ainda esta em draft porque a semantica completa de `when`,
-    a validacao de archetypes em pipeline e a implementacao estavel do CLI
+    a cobertura com mais examples oficiais e a implementacao estavel do CLI
     ainda nao foram consolidadas neste repositorio.
 
 consumerGuidance:
