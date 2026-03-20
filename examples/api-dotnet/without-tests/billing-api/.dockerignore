@@ -1,0 +1,22 @@
+# Source control
+.git
+.gitignore
+
+# Editor and IDE
+.vs/
+.vscode/
+.idea/
+
+# Build output
+**/bin/
+**/obj/
+TestResults/
+
+# Local environment and logs
+.env
+.env.*
+*.log
+
+# Non-runtime repository content
+docs/
+tests/

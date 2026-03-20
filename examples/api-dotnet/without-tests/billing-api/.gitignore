@@ -1,0 +1,23 @@
+# Operating system noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Generic temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Generic runtime and diagnostic output
+*.log
+*.pid
+*.seed
+*.out
+*.err
+
+# Local environment files
+.env
+.env.local
+.env.*.local

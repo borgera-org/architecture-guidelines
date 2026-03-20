@@ -70,6 +70,13 @@
         "$ref": "#/$defs/pathToken"
       }
     },
+    "expectedAbsentPaths": {
+      "description": "Lista de caminhos que nao devem existir no snapshot materializado.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/pathToken"
+      }
+    },
     "validationFocus": {
       "description": "Lista de aspectos que este example ajuda a validar.",
       "type": "array",

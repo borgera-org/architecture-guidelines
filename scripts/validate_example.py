@@ -14,6 +14,10 @@ from jsonschema import Draft202012Validator
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = REPO_ROOT / "schemas" / "example-manifest.schema.json"
 PLACEHOLDER_PATTERN = re.compile(r"\{\{\s*[^}]+\s*\}\}")
+SOLUTION_PROJECT_PATTERN = re.compile(
+    r'^Project\("\{[^"]+\}"\)\s=\s"[^"]+",\s"([^"]+)",\s"\{[^"]+\}"$',
+    re.MULTILINE,
+)
 
 
 def load_yaml(path: Path) -> dict:
@@ -63,6 +67,11 @@ def validate_snapshot(manifest: dict, manifest_path: Path) -> list[str]:
         expected_path = scenario_dir / relative_path
         if not expected_path.is_file():
             errors.append(f"{manifest_path}: expected file not found: {relative_path}")
+
+    for relative_path in manifest.get("expectedAbsentPaths", []):
+        absent_path = scenario_dir / relative_path
+        if absent_path.exists():
+            errors.append(f"{manifest_path}: path should be absent from snapshot: {relative_path}")
 
     for step in manifest.get("postProcessing", []):
         solution = step.get("solution")
@@ -181,6 +190,47 @@ def validate_snapshot_content(snapshot_root: Path, manifest_path: Path) -> list[
 
 def validate_post_processing_content(manifest: dict, manifest_path: Path, scenario_dir: Path) -> list[str]:
     errors = []
+    expected_references = collect_expected_solution_references(manifest, scenario_dir)
+
+    for solution_path, expected_projects in expected_references.items():
+        if not solution_path.is_file():
+            continue
+
+        actual_projects = parse_solution_project_references(solution_path)
+        missing_projects = sorted(expected_projects - actual_projects)
+        unexpected_projects = sorted(actual_projects - expected_projects)
+        solution_label = solution_path.relative_to(scenario_dir).as_posix()
+
+        for project in missing_projects:
+            errors.append(
+                f"{manifest_path}: solution {solution_label} is missing expected project reference {project}"
+            )
+
+        for project in unexpected_projects:
+            errors.append(
+                f"{manifest_path}: solution {solution_label} contains unexpected project reference {project}"
+            )
+
+    return errors
+
+
+def build_solution_project_reference(solution_path: Path, project_path: Path) -> str:
+    relative_path = os.path.relpath(project_path, solution_path.parent)
+    return str(PureWindowsPath(relative_path))
+
+
+def parse_solution_project_references(solution_path: Path) -> set[str]:
+    solution_text = solution_path.read_text(encoding="utf-8")
+    references = {
+        str(PureWindowsPath(match)).lower()
+        for match in SOLUTION_PROJECT_PATTERN.findall(solution_text)
+        if match.lower().endswith(".csproj")
+    }
+    return references
+
+
+def collect_expected_solution_references(manifest: dict, scenario_dir: Path) -> dict[Path, set[str]]:
+    references: dict[Path, set[str]] = {}
     for step in manifest.get("postProcessing", []):
         if step.get("type") != "solution-add-project":
             continue
@@ -191,20 +241,10 @@ def validate_post_processing_content(manifest: dict, manifest_path: Path, scenar
         if not solution_path.is_file() or not project_path.is_file():
             continue
 
-        solution_text = solution_path.read_text(encoding="utf-8")
-        expected_reference = build_solution_project_reference(solution_path, project_path)
+        expected_reference = build_solution_project_reference(solution_path, project_path).lower()
+        references.setdefault(solution_path, set()).add(expected_reference)
 
-        if expected_reference.lower() not in solution_text.lower():
-            errors.append(
-                f"{manifest_path}: solution {step['solution']} does not reference expected project path {expected_reference}"
-            )
-
-    return errors
-
-
-def build_solution_project_reference(solution_path: Path, project_path: Path) -> str:
-    relative_path = os.path.relpath(project_path, solution_path.parent)
-    return str(PureWindowsPath(relative_path))
+    return references
 
 
 def collect_post_processed_targets(manifest: dict, scenario_dir: Path) -> set[Path]:
