@@ -30,18 +30,22 @@ Os cenarios mais naturais para este archetype sao:
 No estado atual, os cenarios `minimal-default` e `without-tests` ja existem
 como referencia.
 
+No estado atual, `without-docker` tambem ja existe como referencia.
+
 ## Primeiros Examples Recomendados
 
 Os primeiros examples recomendados para este archetype sao:
 
 - `minimal-default`
 - `without-tests`
+- `without-docker`
 
 Razoes:
 
 - `minimal-default` representa o caminho padrao mais completo do archetype
 - `without-tests` prova a selecao condicional de templates e pos-processamento
-- os dois juntos reduzem ambiguidades antes de examples mais especializados
+- `without-docker` prova a ausencia correta dos artefatos de containerizacao
+- os tres juntos reduzem ambiguidades antes de examples mais especializados
 
 ## O Que Um Example Deve Mostrar
 
@@ -64,4 +68,5 @@ Se a variacao nao altera entendimento nem validacao do resultado final, ela prov
 
 ## Proximo Passo
 
-O proximo passo esperado neste diretorio e criar o cenario `without-docker`.
+O proximo passo esperado neste diretorio e revisar se a cobertura atual ja e
+suficiente para promover o archetype `api-dotnet` de `draft` para `active`.

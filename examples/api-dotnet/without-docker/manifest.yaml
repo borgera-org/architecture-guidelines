@@ -1,0 +1,57 @@
+version: 0.1.0
+archetypeId: api-dotnet
+scenarioId: without-docker
+snapshotRoot: billing-api
+description: >
+  Manifesto de referencia para o snapshot materializado do archetype
+  api-dotnet no cenario com projeto inicial de testes e sem artefatos de
+  Docker.
+
+inputs:
+  repositoryName: billing-api
+  serviceName: billing-api
+  solutionName: Billing.Api
+  rootNamespace: Billing.Api
+  targetFramework: net8.0
+  dotnetImageTag: "8.0"
+  includeTests: true
+  includeDocker: false
+
+appliedTemplates:
+  - id: repository-files
+  - id: dotnet-solution
+  - id: api-project
+  - id: test-project
+
+postProcessing:
+  - type: solution-add-project
+    solution: billing-api/Billing.Api.sln
+    project: billing-api/src/Billing.Api/Billing.Api.csproj
+  - type: solution-add-project
+    solution: billing-api/Billing.Api.sln
+    project: billing-api/tests/Billing.Api.Tests/Billing.Api.Tests.csproj
+
+expectedFiles:
+  - billing-api/.editorconfig
+  - billing-api/.gitattributes
+  - billing-api/.gitignore
+  - billing-api/README.md
+  - billing-api/Billing.Api.sln
+  - billing-api/Directory.Build.props
+  - billing-api/src/Billing.Api/Billing.Api.csproj
+  - billing-api/src/Billing.Api/Program.cs
+  - billing-api/src/Billing.Api/appsettings.json
+  - billing-api/src/Billing.Api/appsettings.Development.json
+  - billing-api/src/Billing.Api/Properties/launchSettings.json
+  - billing-api/tests/Billing.Api.Tests/Billing.Api.Tests.csproj
+  - billing-api/tests/Billing.Api.Tests/HealthEndpointTests.cs
+
+expectedAbsentPaths:
+  - billing-api/.dockerignore
+  - billing-api/Dockerfile
+
+validationFocus:
+  - selecao condicional de templates sem artefatos de Docker
+  - ausencia dos artefatos do template docker-files
+  - permanencia do projeto de testes no snapshot materializado
+  - integridade da solution com projeto principal e projeto de testes

@@ -125,9 +125,9 @@ Em especial:
 
 Os proximos focos de evolucao deste repositorio sao:
 
-1. ampliar os examples oficiais do `api-dotnet`, comecando por `without-docker`
-2. revisar a maturidade do archetype `api-dotnet`
-3. iniciar o proximo archetype oficial
-4. continuar reduzindo lacunas na semantica de `when`
+1. revisar a maturidade do archetype `api-dotnet`
+2. iniciar o proximo archetype oficial
+3. continuar reduzindo lacunas na semantica de `when`
+4. evoluir a estrategia de versionamento dos contratos da plataforma
 
 Use [baseline-2026-03-19.md](c:/Users/igors/source/repos/architecture-guidelines/docs/baseline-2026-03-19.md) como checkpoint operacional mais atualizado.
