@@ -203,7 +203,11 @@ Esses pontos pertencem a implementacao do produto CLI, nao ao contrato arquitetu
 
 ## Estado Atual
 
-Este contrato ja e suficiente para orientar uma primeira implementacao funcional do CLI.
+Este contrato ja e suficiente para orientar e sustentar uma primeira implementacao funcional do CLI.
+
+No estado atual, essa primeira implementacao de referencia ja existe em
+[cli/](c:/Users/igors/source/repos/architecture-guidelines/cli/README.md) e e
+exercitada pelos manifests oficiais em `examples/`.
 
 Mesmo assim, ele ainda pode evoluir em pontos como:
 
@@ -211,6 +215,7 @@ Mesmo assim, ele ainda pode evoluir em pontos como:
 - versionamento mais explicito de contratos e templates
 - ampliacao do catalogo de acoes de pos-processamento
 - ampliacao controlada da linguagem de `when`, se isso se mostrar necessario
+- distribuicao e experiencia final de uso do produto CLI
 
 ## Regra Pratica
 

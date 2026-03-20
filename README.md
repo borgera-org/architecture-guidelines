@@ -33,6 +33,8 @@ A estrutura base atual deste repositorio e:
 
 - `.github/`
   Workflows de automacao e validacao do proprio repositorio.
+- `cli/`
+  Implementacao de referencia do CLI que consome os contratos publicados aqui.
 - `docs/`
   Documentacao explicativa para humanos e IA.
 - `archetypes/`
@@ -101,6 +103,7 @@ Use este repositorio como:
 - fonte de verdade para scaffolding
 - catalogo de archetypes suportados
 - origem dos templates e schemas aplicados na criacao de repositorios
+- referencia para a implementacao inicial do proprio CLI
 
 ## Limites de Escopo
 
@@ -132,7 +135,7 @@ Em especial:
 Os proximos focos de evolucao deste repositorio sao:
 
 1. iniciar o proximo archetype oficial
-2. exercitar o contrato publicado em uma implementacao inicial do CLI
+2. evoluir a experiencia e distribuicao do CLI
 3. evoluir a cobertura de validacao conforme novos archetypes surgirem
 4. evoluir a estrategia de versionamento dos contratos da plataforma
 

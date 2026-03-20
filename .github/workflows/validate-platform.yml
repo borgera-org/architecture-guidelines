@@ -32,3 +32,6 @@ jobs:
 
       - name: Validate examples
         run: python scripts/validate_example.py
+
+      - name: Smoke-test CLI
+        run: python scripts/smoke_test_cli.py
