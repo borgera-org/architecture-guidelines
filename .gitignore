@@ -1,0 +1,38 @@
+# Operating system noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor and IDE folders
+.vscode/
+.idea/
+.vs/
+*.suo
+*.user
+
+# Python and script caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Generic temporary and diagnostic files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.log
+*.pid
+*.seed
+*.out
+*.err
+
+# Local environment files
+.env
+.env.local
+.env.*.local
