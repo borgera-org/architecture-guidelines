@@ -183,8 +183,9 @@ Isso significa que:
 - o schema inicial do archetype ja foi formalizado
 - os templates iniciais ja foram criados neste repositorio
 - ja existe example oficial materializado com validacao automatizada basica
+- ja existe validacao automatizada local e em CI para contratos principais
 - o pos-processamento necessario ja foi declarado no contrato do archetype
-- o archetype continua em draft porque a semantica completa de `when`, a validacao em pipeline e a implementacao estavel do CLI ainda nao foram fechadas
+- o archetype continua em draft porque a semantica completa de `when`, a cobertura com mais examples oficiais e a implementacao estavel do CLI ainda nao foram fechadas
 
 ## Relacao com o CLI
 

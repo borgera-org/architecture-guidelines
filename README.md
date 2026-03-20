@@ -31,6 +31,8 @@ Este repositorio foi desenhado para atender tres tipos de consumidores:
 
 A estrutura base atual deste repositorio e:
 
+- `.github/`
+  Workflows de automacao e validacao do proprio repositorio.
 - `docs/`
   Documentacao explicativa para humanos e IA.
 - `archetypes/`
@@ -41,6 +43,8 @@ A estrutura base atual deste repositorio e:
   Contratos estruturados para validacao e automacao.
 - `examples/`
   Exemplos de saida esperada para archetypes e templates.
+- `scripts/`
+  Validadores e automacoes locais de apoio ao contrato da plataforma.
 
 ## Contrato com o CLI
 
@@ -121,10 +125,9 @@ Em especial:
 
 Os proximos focos de evolucao deste repositorio sao:
 
-1. ligar validacoes em CI
+1. tornar o check de CI obrigatorio na protecao da `main`
 2. ampliar os examples oficiais do `api-dotnet`
-3. validar archetypes de forma automatizada
-4. revisar a maturidade do archetype `api-dotnet`
-5. iniciar o proximo archetype oficial
+3. revisar a maturidade do archetype `api-dotnet`
+4. iniciar o proximo archetype oficial
 
 Use [baseline-2026-03-19.md](c:/Users/igors/source/repos/architecture-guidelines/docs/baseline-2026-03-19.md) como checkpoint operacional mais atualizado.

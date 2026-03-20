@@ -8,6 +8,30 @@ Eles nao substituem os schemas e a documentacao. Eles existem para automatizar v
 
 ## Scripts Atuais
 
+### `validate_archetypes.py`
+
+Valida definicoes de archetypes contra
+[archetype.schema.json](c:/Users/igors/source/repos/architecture-guidelines/schemas/archetype.schema.json),
+contra
+[post-processing.schema.json](c:/Users/igors/source/repos/architecture-guidelines/schemas/post-processing.schema.json)
+e contra a estrutura local esperada do repositorio.
+
+No estado atual, ele verifica:
+
+- aderencia de `definition.yaml` ao schema do archetype
+- aderencia de cada passo de `postProcessing` ao schema proprio
+- existencia de `README.md` no diretorio do archetype
+- consistencia entre `id` do archetype e nome do diretorio
+- existencia local dos templates referenciados em `templateSet`
+- ausencia de ids de input e template duplicados
+
+Uso:
+
+```text
+python scripts/validate_archetypes.py
+python scripts/validate_archetypes.py archetypes/api-dotnet/definition.yaml
+```
+
 ### `validate_example.py`
 
 Valida manifests de examples contra [example-manifest.schema.json](c:/Users/igors/source/repos/architecture-guidelines/schemas/example-manifest.schema.json) e executa verificacoes estruturais sobre o snapshot materializado.
@@ -29,3 +53,9 @@ Uso:
 python scripts/validate_example.py
 python scripts/validate_example.py examples/api-dotnet/minimal-default/manifest.yaml
 ```
+
+## Uso em CI
+
+A workflow
+[validate-platform.yml](c:/Users/igors/source/repos/architecture-guidelines/.github/workflows/validate-platform.yml)
+executa os dois validadores em pull requests e em push para `main`.
